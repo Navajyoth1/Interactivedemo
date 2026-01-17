@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icebreaker: 10 Card Edition</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a90e2; /* Teacher Color */
+            --secondary: #ff6b6b; /* Student Color */
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --match-color: #48bb78;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        header {
+            text-align: center;
+            margin: 30px 0 20px 0;
+        }
+
+        h1 {
+            color: var(--text);
+            margin-bottom: 5px;
+            font-size: 2.5rem;
+        }
+
+        p.subtitle {
+            color: #718096;
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+
+        /* CARD GRID */
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1400px;
+            padding: 20px;
+        }
+
+        /* 3D FLIP MECHANISM */
+        .card {
+            background-color: transparent;
+            width: 260px; /* Slightly smaller to fit 10 nicely */
+            height: 340px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* FRONT DESIGN */
+        .card-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .card-number {
+            font-size: 4rem;
+            opacity: 0.3;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+
+        .tap-hint {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 15px;
+            font-weight: normal;
+        }
+
+        /* BACK DESIGN */
+        .card-back {
+            background-color: var(--card-bg);
+            color: var(--text);
+            transform: rotateY(180deg);
+            padding: 10px;
+            box-sizing: border-box;
+            justify-content: space-between;
+            border: 3px solid transparent;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .card-back.match {
+            border-color: var(--match-color); 
+            background-color: #f0fff4;
+        }
+
+        .question-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+
+        /* OPTIONS LAYOUT */
+        .options-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            gap: 8px;
+        }
+
+        .option {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 10px 5px;
+            transition: background 0.3s;
+        }
+
+        .card-back.match .option {
+            background: rgba(255,255,255,0.6);
+        }
+
+        .option-icon {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+
+        .option-text {
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* SELECTION BUTTONS */
+        .selector-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #cbd5e0;
+            margin: 4px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .selector-btn i { pointer-events: none; }
+        .selector-btn:hover { transform: scale(1.1); border-color: #cbd5e0; }
+
+        /* Active States */
+        .selector-btn.student.active {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            color: white;
+            box-shadow: 0 2px 5px rgba(255, 107, 107, 0.4);
+        }
+
+        .selector-btn.teacher.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 2px 5px rgba(74, 144, 226, 0.4);
+        }
+
+        .control-label {
+            font-size: 0.65rem;
+            color: #a0aec0;
+            margin-bottom: 1px;
+            font-weight: 600;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .score-display {
+            font-size: 5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            color: #718096;
+            margin-bottom: 20px;
+        }
+
+        h3 { font-size: 1.8rem; margin: 10px 0; }
+        
+        .reset-btn {
+            background: var(--text);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 25px;
+            transition: transform 0.2s;
+        }
+        .reset-btn:hover { transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🧊 Icebreaker</h1>
+        <p class="subtitle">10 Questions to find your "Student-Teacher Sync"</p>
+    </header>
+
+    <div class="card-container" id="gameBoard">
+        </div>
+
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2>🎉 Session Complete!</h2>
+            <div class="score-display" id="finalScore">0/10</div>
+            <div class="score-label">Rapport Score</div>
+            
+            <h3 id="scoreTitle">...</h3>
+            <p id="scoreMessage">...</p>
+            
+            <button class="reset-btn" onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 10 CARD DATA ---
+        const questions = [
+            // Original 5
+            { id: 1, title: "Which Pet?", optA: { text: "Cats", icon: "🐱" }, optB: { text: "Dogs", icon: "🐶" } },
+            { id: 2, title: "Weekend Vibe?", optA: { text: "Indoors", icon: "🏠" }, optB: { text: "Outdoors", icon: "⛺" } },
+            { id: 3, title: "Superpower?", optA: { text: "Fly", icon: "🦅" }, optB: { text: "Invisible", icon: "👻" } },
+            { id: 4, title: "Entertainment?", optA: { text: "Movies", icon: "🎬" }, optB: { text: "Books", icon: "📚" } },
+            { id: 5, title: "Best Snack?", optA: { text: "Sweet", icon: "🍫" }, optB: { text: "Salty", icon: "🍟" } },
+            
+            // New Selections
+            { id: 6, title: "Genre?", optA: { text: "Comedy", icon: "😂" }, optB: { text: "Horror", icon: "🧟" } },
+            { id: 7, title: "Tech Team?", optA: { text: "Android", icon: "🤖" }, optB: { text: "iPhone", icon: "🍎" } },
+            { id: 8, title: "Destination?", optA: { text: "Space", icon: "🚀" }, optB: { text: "Ocean", icon: "🐳" } },
+            { id: 9, title: "The GOAT?", optA: { text: "Messi", icon: "🔟" }, optB: { text: "Ronaldo", icon: "7️⃣" } },
+            { id: 10, title: "Favorite Sport?", optA: { text: "Cricket", icon: "🏏" }, optB: { text: "Football", icon: "⚽" } }
+        ];
+
+        // STATE INITIALIZATION
+        let selections = {};
+        questions.forEach(q => {
+            selections[q.id] = { student: null, teacher: null };
+        });
+
+        const board = document.getElementById('gameBoard');
+
+        // RENDER GAME
+        function initGame() {
+            board.innerHTML = '';
+            questions.forEach((q, index) => {
+                const cardHTML = `
+                <div class="card" onclick="flipCard(this)">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="card-number">#${q.id}</div>
+                            <i class="fas fa-question"></i>
+                            <div class="tap-hint">Tap to Flip</div>
+                        </div>
+                        
+                        <div class="card-back" id="card-back-${q.id}">
+                            <div class="question-title">${q.title}</div>
+                            
+                            <div class="options-wrapper">
+                                <div class="option">
+                                    <div class="option-icon">${q.optA.icon}</div>
+                                    <div class="option-text">${q.optA.text}</div>
+                                    
+                                    <span class="control-label">Student</span>
+                                    <button class="selector-btn student" onclick="selectOption(event, ${q.id}, 'student', 'A')">
+                                        <i class="fas fa-user-graduate"></i>
+                                    </button>
+                                    
+                                    <span class="control-label">Teacher</span>
+                                    <button class="selector-btn teacher" onclick="selectOption(event, ${q.id}, 'teacher', 'A')">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                    </button>
+                                </div>
+
+                                <div class="option">
+                                    <div class="option-icon">${q.optB.icon}</div>
+                                    <div class="option-text">${q.optB.text}</div>
+
+                                    <span class="control-label">Student</span>
+                                    <button class="selector-btn student" onclick="selectOption(event, ${q.id}, 'student', 'B')">
+                                        <i class="fas fa-user-graduate"></i>
+                                    </button>
+                                    
+                                    <span class="control-label">Teacher</span>
+                                    <button class="selector-btn teacher" onclick="selectOption(event, ${q.id}, 'teacher', 'B')">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+                board.innerHTML += cardHTML;
+            });
+        }
+
+        // INTERACTION LOGIC
+        window.flipCard = function(cardElement) {
+            if (!cardElement.classList.contains('flipped')) {
+                cardElement.classList.add('flipped');
+            }
+        };
+
+        window.selectOption = function(event, cardId, person, choice) {
+            event.stopPropagation(); // Stop flip
+
+            // Update Data
+            selections[cardId][person] = choice;
+
+            // UI Updates
+            const cardBack = document.getElementById(`card-back-${cardId}`);
+            const buttons = cardBack.querySelectorAll(`.selector-btn.${person}`);
+            
+            // Reset buttons for this person
+            buttons.forEach(btn => btn.classList.remove('active'));
+            // Activate clicked button
+            event.currentTarget.classList.add('active');
+
+            // Check Match
+            const s = selections[cardId].student;
+            const t = selections[cardId].teacher;
+            
+            if (s && t) {
+                if (s === t) {
+                    cardBack.classList.add('match');
+                    // Optional: Play sound here
+                } else {
+                    cardBack.classList.remove('match');
+                }
+            }
+
+            checkGameCompletion();
+        };
+
+        function checkGameCompletion() {
+            let completed = 0;
+            let matches = 0;
+
+            for (let i = 1; i <= 10; i++) {
+                if (selections[i].student && selections[i].teacher) {
+                    completed++;
+                    if (selections[i].student === selections[i].teacher) {
+                        matches++;
+                    }
+                }
+            }
+
+            if (completed === 10) {
+                setTimeout(() => showResults(matches), 800);
+            }
+        }
+
+        function showResults(matches) {
+            const modal = document.getElementById('resultModal');
+            const scoreDisplay = document.getElementById('finalScore');
+            const title = document.getElementById('scoreTitle');
+            const msg = document.getElementById('scoreMessage');
+
+            scoreDisplay.innerText = `${matches}/10`;
+
+            if (matches <= 3) {
+                title.innerText = "Opposites Attract! 🧲";
+                msg.innerText = "Different perspectives mean you'll learn a lot from each other!";
+            } else if (matches <= 7) {
+                title.innerText = "Balanced Buddies! ⚖️";
+                msg.innerText = "A perfect mix of shared interests and unique viewpoints.";
+            } else {
+                title.innerText = "Mind Readers! 🧠";
+                msg.innerText = "Are you the same person? Incredible sync!";
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
