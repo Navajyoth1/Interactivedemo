@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copycat Cards! 🐵</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+        body {
+            font-family: 'Fredoka One', cursive; /* Fun, chunky font for kids */
+            background-color: #FFDEE9;
+            background-image: linear-gradient(0deg, #FFDEE9 0%, #B5FFFC 100%);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            color: #FF6B6B;
+            font-size: 3rem;
+            text-shadow: 2px 2px 0px white;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        p {
+            color: #555;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        /* GRID LAYOUT */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            padding: 20px;
+        }
+
+        /* CARD STYLES */
+        .card {
+            background-color: transparent;
+            width: 220px;
+            height: 280px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 4px solid white;
+        }
+
+        /* FRONT DESIGN (The Mystery) */
+        .card-front {
+            background: #4ECDC4;
+            color: white;
+            font-size: 5rem;
+        }
+
+        .card-front span {
+            font-size: 1.5rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* BACK DESIGN (The Action) */
+        .card-back {
+            background-color: #ffe66d;
+            color: #ff6b6b;
+            transform: rotateY(180deg);
+        }
+
+        .emoji-large {
+            font-size: 6rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(2px 4px 0px rgba(0,0,0,0.1));
+            transition: transform 0.2s;
+        }
+
+        /* Animation for the emoji when revealed */
+        .card.flipped .emoji-large {
+            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .action-text {
+            font-size: 1.8rem;
+            line-height: 1.2;
+            padding: 0 10px;
+            color: #FF6B6B;
+        }
+
+        /* RESET BUTTON */
+        .btn-reset {
+            margin-top: 30px;
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #c44d4d;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .btn-reset:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #c44d4d;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>🙈 Copycat Cards!</h1>
+    <p>Click a card, then <strong>DO THE POSE!</strong></p>
+
+    <div class="grid-container" id="board">
+        </div>
+
+    <button class="btn-reset" onclick="resetGame()">Shuffle & Play Again</button>
+
+    <script>
+        // THE 6 ACTIVITIES
+        const activities = [
+            { icon: "🦸", text: "Super Hero!", color: "#ffe66d" },
+            { icon: "🐰", text: "Bunny Ears!", color: "#ff9f43" },
+            { icon: "🤪", text: "Funny Face!", color: "#54a0ff" },
+            { icon: "😴", text: "Sleepy Head!", color: "#c8d6e5" },
+            { icon: "💪", text: "Muscle Man!", color: "#ff6b6b" },
+            { icon: "🥶", text: "FREEZE!", color: "#48dbfb" }
+        ];
+
+        const board = document.getElementById('board');
+
+        function initGame() {
+            board.innerHTML = '';
+            // Shuffle (Optional: remove sort if you want fixed order)
+            const shuffled = [...activities].sort(() => 0.5 - Math.random());
+
+            shuffled.forEach((item, index) => {
+                const cardHTML = `
+                <div class="card" onclick="flipCard(this)">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            ?
+                            <span>Tap Me</span>
+                        </div>
+                        <div class="card-back" style="background-color: ${item.color}33;"> <div class="emoji-large">${item.icon}</div>
+                            <div class="action-text">${item.text}</div>
+                        </div>
+                    </div>
+                </div>
+                `;
+                board.innerHTML += cardHTML;
+            });
+        }
+
+        function flipCard(card) {
+            // Only flip if not already flipped
+            if (!card.classList.contains('flipped')) {
+                card.classList.add('flipped');
+                // Optional: Play a "pop" sound here
+            }
+        }
+
+        function resetGame() {
+            // Flip all back first
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(c => c.classList.remove('flipped'));
+
+            // Wait 0.5s for animation, then reshuffle
+            setTimeout(initGame, 600);
+        }
+
+        // Start
+        initGame();
+
+    </script>
+</body>
+</html>
