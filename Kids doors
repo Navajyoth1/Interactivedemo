@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Knock-Knock Doors 🚪</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            background-color: #8EC5FC;
+            background-image: linear-gradient(62deg, #8EC5FC 0%, #E0C3FC 100%);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 3rem;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            font-size: 1.5rem;
+            color: #5d5d5d;
+            background: rgba(255,255,255,0.8);
+            padding: 10px 20px;
+            border-radius: 30px;
+            margin-bottom: 40px;
+        }
+
+        /* DOOR CONTAINER */
+        .door-container {
+            display: flex;
+            gap: 20px;
+            perspective: 1200px; /* Essential for 3D swing */
+        }
+
+        /* THE DOOR WRAPPER */
+        .door-wrapper {
+            position: relative;
+            width: 160px;
+            height: 280px;
+            cursor: pointer;
+        }
+
+        /* THE ANIMAL (Hidden Behind) */
+        .animal-reveal {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #fff;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+            z-index: 1; /* Behind the door */
+        }
+
+        .animal-icon {
+            font-size: 5rem;
+            animation: bounce 1s infinite alternate;
+        }
+
+        /* THE DOOR ITSELF */
+        .door {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2; /* In front */
+            transform-origin: left; /* Hinges on the left */
+            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+
+        .knob {
+            position: absolute;
+            right: 20px;
+            width: 15px;
+            height: 15px;
+            background: gold;
+            border-radius: 50%;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* DOOR COLORS */
+        .door.red { background: #FF6B6B; }
+        .door.blue { background: #54a0ff; }
+        .door.green { background: #1dd1a1; }
+        .door.yellow { background: #feca57; }
+        .door.purple { background: #5f27cd; }
+
+        /* ANIMATIONS */
+        
+        /* 1. The Knock (Shake) */
+        .door.knocking {
+            animation: knockShake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes knockShake {
+            0% { transform: rotateY(0deg) translateX(0); }
+            25% { transform: rotateY(0deg) translateX(2px); }
+            50% { transform: rotateY(0deg) translateX(-2px); }
+            75% { transform: rotateY(0deg) translateX(2px); }
+            100% { transform: rotateY(0deg) translateX(0); }
+        }
+
+        /* 2. The Open (Swing) */
+        .door.open {
+            transform: rotateY(-110deg); /* Swing open to the left */
+            box-shadow: -5px 5px 15px rgba(0,0,0,0.1);
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        /* RESET BUTTON */
+        .reset-btn {
+            margin-top: 50px;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border: none;
+            background: white;
+            color: #5f27cd;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Comic Neue', cursive;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .reset-btn:hover { transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+
+    <h1>🚪 Magic Doors</h1>
+    <div class="instructions">Teacher: Click to KNOCK... Click again to OPEN!</div>
+
+    <div class="door-container">
+        
+        <div class="door-wrapper" onclick="interactDoor(this)">
+            <div class="animal-reveal">
+                <div class="animal-icon">🦁</div>
+                <h2>ROAR!</h2>
+            </div>
+            <div class="door red">
+                <div class="knob"></div>
+            </div>
+        </div>
+
+        <div class="door-wrapper" onclick="interactDoor(this)">
+            <div class="animal-reveal">
+                <div class="animal-icon">🐘</div>
+                <h2>TOOT!</h2>
+            </div>
+            <div class="door blue">
+                <div class="knob"></div>
+            </div>
+        </div>
+
+        <div class="door-wrapper" onclick="interactDoor(this)">
+            <div class="animal-reveal">
+                <div class="animal-icon">🐸</div>
+                <h2>RIBBIT!</h2>
+            </div>
+            <div class="door green">
+                <div class="knob"></div>
+            </div>
+        </div>
+
+        <div class="door-wrapper" onclick="interactDoor(this)">
+            <div class="animal-reveal">
+                <div class="animal-icon">🐤</div>
+                <h2>QUACK!</h2>
+            </div>
+            <div class="door yellow">
+                <div class="knob"></div>
+            </div>
+        </div>
+
+        <div class="door-wrapper" onclick="interactDoor(this)">
+            <div class="animal-reveal">
+                <div class="animal-icon">🐵</div>
+                <h2>OOH-AH!</h2>
+            </div>
+            <div class="door purple">
+                <div class="knob"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <button class="reset-btn" onclick="location.reload()">Close All Doors</button>
+
+    <script>
+        function interactDoor(wrapper) {
+            const door = wrapper.querySelector('.door');
+            
+            // State 1: If door is closed, Start KNOCKING
+            if (!door.classList.contains('open') && !door.classList.contains('knocking')) {
+                door.classList.add('knocking');
+                // Teacher cue
+                console.log("Knocking..."); 
+            } 
+            // State 2: If door is knocking, OPEN IT
+            else if (door.classList.contains('knocking')) {
+                door.classList.remove('knocking');
+                door.classList.add('open');
+            }
+            // State 3: If door is open, CLOSE IT (Optional)
+            else if (door.classList.contains('open')) {
+                door.classList.remove('open');
+            }
+        }
+    </script>
+</body>
+</html>
